@@ -6,15 +6,61 @@ function getTime() {
         })
         .then(function (response) {
             dateTime = response,
-                currentTime = dateTime.datetime[11] + dateTime.datetime[12] + dateTime.datetime[13]
-                + dateTime.datetime[14] + dateTime.datetime[15];
-            console.log(currentTime);
+                currentYear = dateTime.datetime[0] + dateTime.datetime[1] + dateTime.datetime[2]
+                + dateTime.datetime[3];
 
-            var clock = document.getElementById("clock").innerText = currentTime;
+            var newDate = formatAMPM(new Date);
+            var clock = document.getElementById("clock").innerText = newDate;
+
+            days = [
+                'Sunday',
+                'Monday',
+                'Tuesday',
+                'Wednesday',
+                'Thursday',
+                'Friday',
+                'Saturday'
+            ];
+
+            day = dateTime.day_of_week;
+            currentDay = days[day];
+
+            var months = {
+                "01": "January",
+                "02": "February",
+                "03": "March",
+                "04": "April",
+                "05": "May",
+                "06": "June",
+                "07": "July",
+                "08": "August",
+                "09": "September",
+                "10": "October",
+                "11": "November",
+                "12": "December"
+            };
+            month = dateTime.datetime[5] + dateTime.datetime[6];
+            currentMonth = months[month];
+            day = parseInt(dateTime.datetime[8] + dateTime.datetime[9]);
+            document.getElementById("current-day").innerText = currentDay + ", " + currentMonth + " " + day + ", " + currentYear;
         })
 }
 
 getTime();
+
+function formatAMPM(date) {
+    var hours = date.getHours();
+    var minutes = date.getMinutes();
+    var ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12; // the hour '0' should be '12'
+    minutes = minutes < 10 ? '0' + minutes : minutes;
+    var strTime = hours + ':' + minutes + ' ' + ampm;
+    return strTime;
+
+}
+
+
 
 // function getForecast(cityName = "tbilisi") {
 //     const baseUrl = "https://api.openweathermap.org";
@@ -53,20 +99,25 @@ function forecastWeekly(cityName = "Tbilisi") {
         })
         .then(function (response) {
             const hourly = response.list.slice(0, 5);
+
             for (i = 0; i < hourly.length; i++) {
                 var temp = hourly[i].main.temp;
                 let temperatureC = Math.round(temp - 273.15);
 
                 var description = hourly[i].weather[0].main;
                 var imageURL = "assets/imgs/" + description + ".PNG";
-                createCard(description, temperatureC, imageURL);
+
+                var hour = hourly[i].dt_txt;
+                timeHour = hour[11] + hour[12] + hour[13] + hour[14] + hour[15];
+
+                createCard(description, temperatureC, imageURL, timeHour);
             }
         })
 }
 
 forecastWeekly("Tbilisi");
 
-function createCard(text, temperature, image) {
+function createCard(text, temperature, image, hour) {
     var eachDay = document.createElement("div");
     eachDay.setAttribute("class", "each-day");
 
@@ -77,6 +128,9 @@ function createCard(text, temperature, image) {
     var mainText = document.createElement("p");
     mainText.setAttribute("class", "mainText");
 
+    var hourText = document.createElement("p");
+    hourText.setAttribute("class", "hourText");
+
     var tempText = document.createElement("p");
     tempText.setAttribute("id", "temp");
 
@@ -86,11 +140,12 @@ function createCard(text, temperature, image) {
 
     tempText.innerText = temperature + " °C";
     mainText.innerText = text;
+    hourText.innerText = hour;
 
-    console.log(image)
     var main = document.getElementById("main-card");
 
     eachDay.appendChild(img);
+    eachDay.appendChild(hourText);
     eachDay.appendChild(mainText);
     eachDay.appendChild(tempText);
     main.appendChild(eachDay);
