@@ -9,8 +9,9 @@ function getTime() {
                 currentYear = dateTime.datetime[0] + dateTime.datetime[1] + dateTime.datetime[2]
                 + dateTime.datetime[3];
 
-            var newDate = formatAMPM(new Date);
-            var clock = document.getElementById("clock").innerText = newDate;
+            var dateObject = formatAMPM(new Date);
+            document.getElementById("clock").innerText = dateObject.strTime;
+            greeting(dateObject.hours, dateObject.ampm);
 
             days = [
                 'Sunday',
@@ -56,11 +57,26 @@ function formatAMPM(date) {
     hours = hours ? hours : 12; // the hour '0' should be '12'
     minutes = minutes < 10 ? '0' + minutes : minutes;
     var strTime = hours + ':' + minutes + ' ' + ampm;
-    return strTime;
-
+    return {
+        "strTime": strTime,
+        "hours": hours,
+        "ampm": ampm,
+    };
 }
 
-
+function greeting(hours, ampm) {
+    if (hours >= 8 && hours < 12 && ampm == "AM") {
+        document.getElementById("greeting").innerText = "Good morning!";
+    } else if (hours >= 12 && hours < 6 && ampm == "PM") {
+        document.getElementById("greeting").innerText = "Good afternoon!";
+    } else if (hours >= 6 && hours < 12 && ampm == "PM") {
+        document.getElementById("greeting").innerText = "Good evening!";
+    } else if (hours >= 12 && ampm == "AM") {
+        document.getElementById("greeting").innerText = "Happy night! It's time to ride the rainbow to dreamland.";
+    } else {
+        console.log("error");
+    }
+};
 
 // function getForecast(cityName = "tbilisi") {
 //     const baseUrl = "https://api.openweathermap.org";
@@ -149,4 +165,4 @@ function createCard(text, temperature, image, hour) {
     eachDay.appendChild(mainText);
     eachDay.appendChild(tempText);
     main.appendChild(eachDay);
-}
+};
